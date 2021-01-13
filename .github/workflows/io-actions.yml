@@ -44,7 +44,7 @@ jobs:
       run: |
         docker login --username rahulguna10 --password ${{ secrets.DOCKER_TOKEN}}
         docker pull rahulguna10/synopsys-io-wfengine:test
-        docker run --name wf-testing -p 9091:9091 synopsys-io-wfengine:test &
+        docker run --name wf-testing -p 9091:9091 rahulguna10/synopsys-io-wfengine:test &
     
     - name: Check WFEngine Status
       run: curl http://localhost:9091/actuator/health
