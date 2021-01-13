@@ -21,47 +21,39 @@ jobs:
     # the head of the pull request instead of the merge commit.
     - run: git checkout HEAD^2
       if: ${{ github.event_name == 'pull_request' }}
-      
-    - name: Synopsys Intelligent Security Scan
-      id: prescription
-      uses: synopsys-sig/intelligent-security-scan@v1
-      with:
-        ioServerUrl: ${{secrets.IO_SERVER_URL}}
-        ioServerToken: ${{secrets.IO_SERVER_TOKEN}}
-        workflowServerUrl: ${{secrets.WORKFLOW_SERVER_URL}}
-        workflowServerToken: ${{secrets.WORKFLOW_SERVER_TOKEN}}
-        additionalWorkflowArgs: "--persona=developer"
-        stage: "IO"
     
     # Please note that the ID in previous step was set to prescription
     # in order for this logic to work also make sure that POLARIS_ACCESS_TOKEN
     # is defined in settings
-    - name: Static Analysis with Polaris
-      if: ${{steps.prescription.outputs.sastScan == 'true' }}
-      run: |
-          export POLARIS_SERVER_URL=${{ secrets.POLARIS_SERVER_URL}}
-          export POLARIS_ACCESS_TOKEN=${{ secrets.POLARIS_ACCESS_TOKEN}}
-          wget -q ${{ secrets.POLARIS_SERVER_URL}}/api/tools/polaris_cli-linux64.zip
-          unzip -j polaris_cli-linux64.zip -d /tmp
-          /tmp/polaris analyze -w
+    #- name: Static Analysis with Polaris
+    #  run: |
+    #      export POLARIS_SERVER_URL=${{ secrets.ORG_POLARIS_SERVER_URL}}
+    #      export POLARIS_ACCESS_TOKEN=${{ secrets.ORG_POLARIS_ACCESS_TOKEN}}
+    #      wget -q ${{ secrets.ORG_POLARIS_SERVER_URL}}/api/tools/polaris_cli-linux64.zip
+    #      unzip -j polaris_cli-linux64.zip -d /tmp
+    #      /tmp/polaris analyze -w
     
     # Please note that the ID in previous step was set to prescription
     # in order for this logic to work
-    - name: Software Composition Analysis with Black Duck
-      if: ${{steps.prescription.outputs.scaScan == 'true' }}
-      uses: blackducksoftware/github-action@v2
-      with:
-         args: '--blackduck.url="${{ secrets.BLACKDUCK_URL}}" --blackduck.api.token="${{ secrets.BLACKDUCK_TOKEN}}" --detect.tools="SIGNATURE_SCAN,DETECTOR"'
+    #- name: Software Composition Analysis with Black Duck
+    #  uses: blackducksoftware/github-action@v2
+    #  with:
+    #     args: '--blackduck.url="${{ secrets.ORG_BLACKDUCK_URL}}" --blackduck.api.token="${{ secrets.ORG_BLACKDUCK_TOKEN}}" --detect.tools="SIGNATURE_SCAN,DETECTOR"'
+    
+    - name: Run IO WorkflowEngine Docker
+      run: |
+        docker login --username rahulguna10 --password ${{ secrets.DOCKER_TOKEN}}
+        docker pull rahulguna10/synopsys-io-wfengine:test
+        docker run --name wf-testing -p 9091:9091 stargazer-workflowengine:test &
     
     - name: Synopsys Intelligent Security Scan
-      if: ${{ steps.prescription.outputs.sastScan == 'true' || steps.prescription.outputs.scaScan == 'true' }}
-      uses: synopsys-sig/intelligent-security-scan@v1
+      uses: synopsys-sig/intelligent-security-scan@26a9e0c
       with:
-        ioServerUrl: ${{secrets.IO_SERVER_URL}}
-        ioServerToken: ${{secrets.IO_SERVER_TOKEN}}
-        workflowServerUrl: ${{secrets.WORKFLOW_SERVER_URL}}
-        workflowServerToken: ${{secrets.WORKFLOW_SERVER_TOKEN}}
-        additionalWorkflowArgs: "--slack.channel.id=C015LGE7RRQ --slack.token=${{secrets.SLACK_TOKEN}} --IS_SAST_ENABLED=${{steps.prescription.outputs.sastScan}} --IS_SCA_ENABLED=${{steps.prescription.outputs.scaScan}} --polaris.project.name=sig-devsecops/github-io-sample --polaris.url=${{secrets.POLARIS_SERVER_URL}} --polaris.token=${{secrets.POLARIS_ACCESS_TOKEN}} --blackduck.project.name=github-io-sample:1.0.0 --blackduck.url=${{secrets.BLACKDUCK_URL}} --blackduck.api.token=${{secrets.BLACKDUCK_TOKEN}}"
+        ioServerUrl: http://localhost:9090
+        ioServerToken: sampletoken
+        workflowServerUrl: http://localhost:9091
+        workflowServerToken: sampletoken
+        additionalWorkflowArgs: "--slack.channel.id=C015LGE7RRQ --slack.token=${{secrets.ORG_SLACK_TOKEN}} --IS_SAST_ENABLED=true --IS_SCA_ENABLED=true --polaris.project.name=sig-devsecops/github-io-sample --polaris.url=${{secrets.ORG_POLARIS_SERVER_URL}} --polaris.token=${{secrets.ORG_POLARIS_ACCESS_TOKEN}} --blackduck.project.name=github-io-sample:1.0.0 --blackduck.url=${{secrets.ORG_BLACKDUCK_URL}} --blackduck.api.token=${{secrets.ORG_BLACKDUCK_TOKEN}}"
         stage: "WORKFLOW"
     
     - name: Upload SARIF file
@@ -70,3 +62,6 @@ jobs:
       with:
         # Path to SARIF file relative to the root of the repository
         sarif_file: workflowengine-results.sarif.json
+
+    - name: Stop Workflowengine Server
+      run: docker container stop wf-testing
