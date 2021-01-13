@@ -47,7 +47,9 @@ jobs:
         docker run --name wf-testing -p 9091:9091 rahulguna10/synopsys-io-wfengine:test &
     
     - name: Check WFEngine Status
-      run: curl http://localhost:9091/actuator/health
+      run: | 
+        sleep 15
+        curl http://localhost:9091/actuator/health
     
     - name: Synopsys Intelligent Security Scan
       uses: synopsys-sig/intelligent-security-scan@26a9e0c
