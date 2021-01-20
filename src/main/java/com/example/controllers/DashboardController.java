@@ -70,7 +70,6 @@ public class DashboardController {
 		List<CreditAccount> creditAccounts = creditaccountDao.findCreditAccountsByUsername(principal.getName());
 
 		model.addAttribute("creditAccounts", creditAccounts);
-		model.addAttribute("account", account);
 		model.addAttribute("accountMalicious", account);
 
 		return "userDetail";
