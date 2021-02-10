@@ -32,7 +32,7 @@ jobs:
     
     - name: Check IO Server Status
       run: | 
-        sleep 15
+        sleep 45
         curl http://localhost:9090/actuator/health
         curl http://localhost:9091/actuator/health
     
