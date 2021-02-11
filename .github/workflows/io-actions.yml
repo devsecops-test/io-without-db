@@ -41,7 +41,7 @@ jobs:
       uses: synopsys-sig/intelligent-security-scan@9ce02cb14c3a1588fe9ca9c18f4d2cc72c842a95
       with:
         additionalWorkflowArgs: --persona=developer --release.type=minor --sast.rescan.threshold=0  --sca.rescan.threshold=0 
-                  --polaris.url=${{secrets.POLARIS_SERVER_URL}} --polaris.token=${{secrets.POLARIS_ACCESS_TOKEN}} 
+                  --polaris.url=${{secrets.ORG_POLARIS_SERVER_URL}} --polaris.token=${{secrets.ORG_POLARIS_ACCESS_TOKEN}} 
                   --sensitive.package.pattern='.*(\\+\\+\\+.*(com\\/example\\/app)).*'
         stage: "IO"
     
