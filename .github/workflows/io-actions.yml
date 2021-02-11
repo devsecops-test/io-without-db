@@ -48,20 +48,20 @@ jobs:
     # Please note that the ID in previous step was set to prescription
     # in order for this logic to work also make sure that POLARIS_ACCESS_TOKEN
     # is defined in settings
-    #- name: Static Analysis with Polaris
-    #  run: |
-    #      export POLARIS_SERVER_URL=${{ secrets.ORG_POLARIS_SERVER_URL}}
-    #      export POLARIS_ACCESS_TOKEN=${{ secrets.ORG_POLARIS_ACCESS_TOKEN}}
-    #      wget -q ${{ secrets.ORG_POLARIS_SERVER_URL}}/api/tools/polaris_cli-linux64.zip
-    #      unzip -j polaris_cli-linux64.zip -d /tmp
-    #      /tmp/polaris analyze -w
+    - name: Static Analysis with Polaris
+      run: |
+          export POLARIS_SERVER_URL=${{ secrets.ORG_POLARIS_SERVER_URL}}
+          export POLARIS_ACCESS_TOKEN=${{ secrets.ORG_POLARIS_ACCESS_TOKEN}}
+          wget -q ${{ secrets.ORG_POLARIS_SERVER_URL}}/api/tools/polaris_cli-linux64.zip
+          unzip -j polaris_cli-linux64.zip -d /tmp
+          /tmp/polaris analyze -w
     
     # Please note that the ID in previous step was set to prescription
     # in order for this logic to work
-    #- name: Software Composition Analysis with Black Duck
-    #  uses: blackducksoftware/github-action@v2
-    #  with:
-    #     args: '--blackduck.url="${{ secrets.ORG_BLACKDUCK_URL}}" --blackduck.api.token="${{ secrets.ORG_BLACKDUCK_TOKEN}}" --detect.tools="SIGNATURE_SCAN,DETECTOR"'
+    - name: Software Composition Analysis with Black Duck
+      uses: blackducksoftware/github-action@v2
+      with:
+         args: '--blackduck.url="${{ secrets.ORG_BLACKDUCK_URL}}" --blackduck.api.token="${{ secrets.ORG_BLACKDUCK_TOKEN}}" --detect.tools="SIGNATURE_SCAN,DETECTOR"'
     
     - name: Synopsys Intelligent Security Scan
       uses: synopsys-sig/intelligent-security-scan@9ce02cb14c3a1588fe9ca9c18f4d2cc72c842a95
@@ -78,7 +78,7 @@ jobs:
         # Path to SARIF file relative to the root of the repository
         sarif_file: workflowengine-results.sarif.json
 
-    - name: Stop WorkflowEngine Server
+    - name: Stop IO Servers
       run: |
         docker container stop io-iq
         docker container stop io-workflowengine
