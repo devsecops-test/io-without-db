@@ -38,7 +38,7 @@ jobs:
     
     - name: Synopsys Intelligent Security Scan
       id: prescription
-      uses: synopsys-sig/intelligent-security-scan@230e7d59f14c58731227216279f3f650b945b907
+      uses: synopsys-sig/intelligent-security-scan@2bb1a2be7741ef7824db336330341d4e3d5f844c
       with:
         additionalWorkflowArgs: --persona=developer --release.type=minor --sast.rescan.threshold=0  --sca.rescan.threshold=0 
                   --polaris.url=${{secrets.POLARIS_SERVER_URL}} --polaris.token=${{secrets.POLARIS_ACCESS_TOKEN}} 
@@ -64,7 +64,7 @@ jobs:
     #     args: '--blackduck.url="${{ secrets.ORG_BLACKDUCK_URL}}" --blackduck.api.token="${{ secrets.ORG_BLACKDUCK_TOKEN}}" --detect.tools="SIGNATURE_SCAN,DETECTOR"'
     
     - name: Synopsys Intelligent Security Scan
-      uses: synopsys-sig/intelligent-security-scan@230e7d59f14c58731227216279f3f650b945b907
+      uses: synopsys-sig/intelligent-security-scan@2bb1a2be7741ef7824db336330341d4e3d5f844c
       with:
         additionalWorkflowArgs: --slack.channel.id=C015LGE7RRQ --slack.token=${{secrets.ORG_SLACK_TOKEN}} 
                 --IS_SAST_ENABLED=true --IS_SCA_ENABLED=true 
